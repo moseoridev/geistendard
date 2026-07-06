@@ -1,5 +1,17 @@
 # Jetendard
 
+This project is heavily inspired by
+[Yeomil Mono](https://github.com/taevel02/yeomil-mono) and reuses much of its
+implementation with minimal changes. Compared with
+[Yeomil Mono](https://github.com/taevel02/yeomil-mono), Jetendard uses
+JetBrainsMono Nerd Font Mono instead of
+[Geist Mono](https://github.com/vercel/geist-font/tree/main/fonts/GeistMono)
+and applies a `1.15` scale to
+[Pretendard](https://github.com/orioncactus/pretendard). Slightly enlarging
+Pretendard reduces unnecessary spacing around Korean glyphs, making Korean word
+spacing feel more visually stable while improving the clarity and precision of
+Hangul rendering.
+
 Jetendard is a reproducible font build project that combines
 [JetBrainsMono Nerd Font Mono](https://github.com/ryanoasis/nerd-fonts) with
 [Pretendard](https://github.com/orioncactus/pretendard) Korean glyphs.
@@ -8,9 +20,6 @@ The generated family is named `Jetendard`. Latin glyphs, programming ligatures,
 and Nerd Font symbols come from the ligature-enabled `JetBrainsMonoNerdFontMono`
 files. Korean and CJK glyphs come from Pretendard and are fitted into exactly two
 Latin monospace advances.
-
-The implementation follows the local reference project at `../reference/yeomil-mono`
-while meeting the product requirements in `${DOC_PATH}/prd/2607061108_PRD_JETENDARD_FONT.md`.
 
 ## Build
 
@@ -21,9 +30,7 @@ make run
 make test
 ```
 
-`make run` builds the full 16-variant family. Use `make run-minimal` for the
-initial fast subset (`Regular`, `Light`, `Bold`) and `make run-all` as an
-explicit alias for the full build.
+`make run` builds the full 16-variant family. 
 
 Generated files are written to:
 
@@ -52,9 +59,7 @@ Important options:
 - `--korean-scale`: visual scale for Korean/CJK glyph fitting
 - `--scale`: compatibility alias for `--korean-scale`
 
-The default Korean scale is `1.08`. The builder caps glyphs that would exceed
-safe horizontal or vertical bounds, while keeping every Korean/CJK advance width
-at exactly two measured Latin advances.
+The default Korean scale is `1.15`.
 
 Examples:
 

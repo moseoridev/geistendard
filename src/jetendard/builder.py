@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 Bounds = tuple[float, float, float, float]
 
-DEFAULT_KOREAN_SCALE = 1.08
+DEFAULT_KOREAN_SCALE = 1.15
 ASCII_WIDTH_SAMPLE = tuple(ord(char) for char in " A0Hinmw")
 
 
@@ -128,6 +128,12 @@ WEIGHT_TO_CSS = {
 SUPPORTED_WEIGHTS = tuple(WEIGHT_TO_CSS)
 DEFAULT_WEIGHTS = SUPPORTED_WEIGHTS
 SUPPORTED_STYLES = ("normal", "italic")
+
+
+def new_ot_table(class_name: str) -> Any:
+    """Create a fontTools OpenType table class generated at import time."""
+    table_class = getattr(cast("Any", otTables), class_name)
+    return table_class()
 
 
 def make_font_variant(weight_name: str, style: str) -> FontVariant:
@@ -573,12 +579,12 @@ def add_hangul_ccmp_features(font: TTFont) -> None:
         record for record in gsub.FeatureList.FeatureRecord if record.FeatureTag == "ccmp"
     ]
     if not ccmp_records:
-        feature = otTables.Feature()
+        feature = new_ot_table("Feature")
         feature.FeatureParams = None
         feature.LookupListIndex = []
         feature.LookupCount = 0
 
-        record = otTables.FeatureRecord()
+        record = new_ot_table("FeatureRecord")
         record.FeatureTag = "ccmp"
         record.Feature = feature
         gsub.FeatureList.FeatureRecord.append(record)
