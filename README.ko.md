@@ -19,17 +19,13 @@
 Nerd Font 패치가 적용되어 있지 않으므로, 터미널 심볼은 TTF 빌드 후 `make nerd`로
 추가합니다.
 
-**Zed 에디터 (폰트 사이즈 13.5)**
-![예시 스크린샷](assets/screeshots/screenshot-2026-07-06-at-3.38.07-pm.png)
+## 다운로드
 
-**Zed 에디터 (한글 주석)**
-![screenshot](assets/screeshots/screenshot-2026-07-07-at-10.59.35-am.png)
-
-**Ghostty 터미널 (텍스트 출력)**
-![screenshot](assets/screeshots/screenshot-2026-07-06-at-4.59.31-pm.png)
-
-**Ghostty 터미널 (Codex)**
-![screenshot](assets/screeshots/screenshot-2026-07-06-at-10.44.13-pm.png)
+설치 가능한 빌드는
+[GitHub Releases](https://github.com/moseoridev/geistendard/releases)에
+게시합니다. Geistendard 전용 캡처가 준비되기 전까지 스크린샷은 의도적으로
+생략합니다. 이 fork를 잘못 보여 줄 수 있는 기존 Jetendard 시절 스크린샷은
+제거했습니다.
 
 ## 빌드
 

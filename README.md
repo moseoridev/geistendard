@@ -19,18 +19,13 @@ The generated family is named `Geistendard` by default. Nerd Font symbols are
 added after the TTF build with `make nerd`, because the default Geist Mono
 source is not pre-patched.
 
-**Zed Editor (font size 13.5)**
-![screenshot](assets/screeshots/screenshot-2026-07-06-at-3.38.07-pm.png)
+## Download
 
-**Zed Editor (Korean comments)**
-![screenshot](assets/screeshots/screenshot-2026-07-07-at-10.59.35-am.png)
-
-**Ghostty Terminal (Text Output)**
-![screenshot](assets/screeshots/screenshot-2026-07-06-at-4.59.31-pm.png)
-
-**Ghostty Terminal (Codex)**
-![screenshot](assets/screeshots/screenshot-2026-07-06-at-10.44.13-pm.png)
-
+Installable builds are published on
+[GitHub Releases](https://github.com/moseoridev/geistendard/releases).
+Screenshots are intentionally omitted until Geistendard-specific captures are
+available; old Jetendard-era screenshots were removed to avoid misrepresenting
+this fork.
 
 ## Build
 
