@@ -1,5 +1,10 @@
 # Geistendard
 
+> Fork notice: Geistendard is a fork-derived build of
+> [Jetendard](https://github.com/kuskhan/jetendard). It keeps Jetendard's
+> Korean/CJK fitting pipeline while changing the default Latin source to Geist
+> Mono and adding this repository's build/release choices.
+
 This branch builds a terminal/IDE-focused hybrid font: Geist Mono for Latin
 glyphs, Pretendard for Korean/CJK glyphs, Jetendard's fitting and metadata
 pipeline, and an optional Nerd Fonts patching step for terminal symbols.

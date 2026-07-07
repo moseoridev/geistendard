@@ -2,6 +2,11 @@
 
 [English](README.md)
 
+> 포크 안내: Geistendard는 [Jetendard](https://github.com/kuskhan/jetendard)를
+> 기반으로 한 fork 파생 빌드입니다. Jetendard의 한글/CJK 맞춤 파이프라인을
+> 유지하되, 기본 라틴 소스를 Geist Mono로 바꾸고 이 저장소의 빌드/릴리스 선택을
+> 더했습니다.
+
 이 브랜치는 터미널과 IDE 사용을 위한 하이브리드 폰트를 빌드합니다. 라틴
 글리프는 [Geist Mono](https://github.com/vercel/geist-font/tree/main/fonts/GeistMono),
 한글/CJK 글리프는 [Pretendard](https://github.com/orioncactus/pretendard)를
