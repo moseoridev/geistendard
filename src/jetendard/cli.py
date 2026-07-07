@@ -11,11 +11,13 @@ from fontTools.ttLib import TTFont
 
 from jetendard.builder import (
     DEFAULT_KOREAN_SCALE,
-    DEFAULT_VARIANTS,
+    DEFAULT_LATIN_SOURCE,
     DEFAULT_WEIGHTS,
+    SUPPORTED_LATIN_SOURCES,
     SUPPORTED_STYLES,
     SUPPORTED_WEIGHTS,
     FontVariant,
+    default_variants_for_latin_source,
     get_variants_by_names,
     get_variants_by_weights_and_styles,
     merge_fonts,
@@ -60,14 +62,20 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the Jetendard CLI parser."""
     parser = argparse.ArgumentParser(
         description=(
-            "Build Jetendard from ligature-enabled JetBrainsMono Nerd Font Mono "
-            "and Pretendard Korean glyphs."
+            "Build a Geist Mono or JetBrainsMono Nerd Font Mono Latin base "
+            "with Pretendard Korean glyphs."
         )
     )
     parser.add_argument(
+        "--latin-source",
+        choices=SUPPORTED_LATIN_SOURCES,
+        default=DEFAULT_LATIN_SOURCE,
+        help=f"Latin source profile to use (default: {DEFAULT_LATIN_SOURCE}).",
+    )
+    parser.add_argument(
         "--latin-dir",
-        default="upstream/jetbrainsmono",
-        help="Directory containing JetBrainsMonoNerdFontMono TTF files.",
+        default=None,
+        help="Directory containing Latin source TTF files. Defaults depend on --latin-source.",
     )
     parser.add_argument(
         "--cjk-dir",
@@ -81,7 +89,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--family-name",
-        default="Jetendard",
+        default="Geistendard",
         help="Generated font family name.",
     )
     parser.add_argument(
@@ -123,7 +131,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Build the full 16-variant Jetendard coverage matrix.",
+        help="Build every variant supported by the selected Latin source profile.",
     )
     parser.add_argument(
         "--korean-italic-mode",
@@ -168,8 +176,16 @@ def validate_styles(styles: list[str]) -> list[str]:
     return deduped
 
 
+def default_latin_dir(latin_source: str) -> Path:
+    """Return the default Latin source directory for a profile."""
+    if latin_source == "geist":
+        return Path("upstream/geistmono")
+    return Path("upstream/jetbrainsmono")
+
+
 def select_variants(
     *,
+    latin_source: str = DEFAULT_LATIN_SOURCE,
     all_variants: bool = False,
     variant_names: list[str] | None = None,
     weights: list[str] | None = None,
@@ -184,14 +200,14 @@ def select_variants(
         raise ValueError(msg)
 
     if all_variants or (variant_names is None and weights is None and styles is None):
-        return list(DEFAULT_VARIANTS)
+        return list(default_variants_for_latin_source(latin_source))
 
     if variant_names:
-        return get_variants_by_names(variant_names)
+        return get_variants_by_names(variant_names, latin_source)
 
     selected_weights = validate_weights(weights if weights is not None else list(DEFAULT_WEIGHTS))
     selected_styles = validate_styles(styles if styles is not None else ["normal"])
-    return get_variants_by_weights_and_styles(selected_weights, selected_styles)
+    return get_variants_by_weights_and_styles(selected_weights, selected_styles, latin_source)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -203,6 +219,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         variants = select_variants(
+            latin_source=args.latin_source,
             all_variants=args.all,
             variant_names=args.variants,
             weights=args.weights,
@@ -211,7 +228,7 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         parser.error(str(exc))
 
-    latin_dir = Path(args.latin_dir)
+    latin_dir = Path(args.latin_dir) if args.latin_dir else default_latin_dir(args.latin_source)
     cjk_dir = Path(args.cjk_dir)
     base_output_dir = Path(args.output_dir)
     ttf_dir = base_output_dir / "ttf"
@@ -224,7 +241,8 @@ def main(argv: list[str] | None = None) -> int:
 
     stem = family_file_stem(args.family_name)
     logger.info(
-        "Starting Jetendard build for variants: %s",
+        "Starting Jetendard build with %s Latin source for variants: %s",
+        args.latin_source,
         ", ".join(variant.output_suffix for variant in variants),
     )
 
@@ -237,7 +255,7 @@ def main(argv: list[str] | None = None) -> int:
 
         if not latin_path.exists():
             logger.error("Latin font file not found: %s", latin_path)
-            logger.error("Run `make download` to fetch JetBrainsMonoNerdFontMono files.")
+            logger.error("Run `make download` to fetch %s Latin source files.", args.latin_source)
             return 1
         if not cjk_path.exists():
             logger.error("CJK font file not found: %s", cjk_path)

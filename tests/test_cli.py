@@ -6,6 +6,7 @@ import pytest
 
 from jetendard.builder import DEFAULT_VARIANTS, get_variants_by_names
 from jetendard.cli import (
+    build_parser,
     family_file_stem,
     select_variants,
     validate_styles,
@@ -41,8 +42,34 @@ def test_validate_styles_rejects_unknown_style() -> None:
         validate_styles(["oblique"])
 
 
-def test_select_variants_defaults_to_full_coverage() -> None:
-    assert select_variants() == list(DEFAULT_VARIANTS)
+def test_select_variants_defaults_to_geist_upright_coverage() -> None:
+    variants = select_variants()
+
+    assert [variant.output_suffix for variant in variants] == [
+        "Thin",
+        "ExtraLight",
+        "Light",
+        "Regular",
+        "Medium",
+        "SemiBold",
+        "Bold",
+        "ExtraBold",
+    ]
+    assert [variant.latin_filename for variant in variants] == [
+        "GeistMono-Thin.ttf",
+        "GeistMono-ExtraLight.ttf",
+        "GeistMono-Light.ttf",
+        "GeistMono-Regular.ttf",
+        "GeistMono-Medium.ttf",
+        "GeistMono-SemiBold.ttf",
+        "GeistMono-Bold.ttf",
+        "GeistMono-ExtraBold.ttf",
+    ]
+    assert {variant.style for variant in variants} == {"normal"}
+
+
+def test_select_variants_jetbrains_source_keeps_full_italic_matrix() -> None:
+    assert select_variants(latin_source="jetbrains-nerd") == list(DEFAULT_VARIANTS)
 
 
 def test_select_variants_weights_default_to_upright() -> None:
@@ -50,8 +77,12 @@ def test_select_variants_weights_default_to_upright() -> None:
     assert [variant.output_suffix for variant in variants] == ["Regular", "Bold"]
 
 
-def test_select_variants_weights_and_styles_cross_product() -> None:
-    variants = select_variants(weights=["Regular", "Bold"], styles=["normal", "italic"])
+def test_select_variants_weights_and_styles_cross_product_for_jetbrains_source() -> None:
+    variants = select_variants(
+        latin_source="jetbrains-nerd",
+        weights=["Regular", "Bold"],
+        styles=["normal", "italic"],
+    )
     assert [variant.output_suffix for variant in variants] == [
         "Regular",
         "Italic",
@@ -60,8 +91,11 @@ def test_select_variants_weights_and_styles_cross_product() -> None:
     ]
 
 
-def test_select_variants_explicit_names() -> None:
-    variants = select_variants(variant_names=["Regular", "BoldItalic"])
+def test_select_variants_explicit_names_for_jetbrains_source() -> None:
+    variants = select_variants(
+        latin_source="jetbrains-nerd",
+        variant_names=["Regular", "BoldItalic"],
+    )
     assert [variant.output_suffix for variant in variants] == ["Regular", "BoldItalic"]
 
 
@@ -70,6 +104,14 @@ def test_select_variants_rejects_ambiguous_combinations() -> None:
         select_variants(all_variants=True, weights=["Regular"])
     with pytest.raises(ValueError, match="--variants cannot be combined"):
         select_variants(variant_names=["Regular"], styles=["italic"])
+
+
+def test_parser_defaults_to_geist_profile_family_and_scale() -> None:
+    args = build_parser().parse_args([])
+
+    assert args.latin_source == "geist"
+    assert args.family_name == "Geistendard"
+    assert args.korean_scale == pytest.approx(1.10)
 
 
 def test_write_css_generates_font_face_rules(tmp_path) -> None:

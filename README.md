@@ -1,25 +1,18 @@
-# Jetendard
+# Geistendard
 
-This project is heavily inspired by
-[Yeomil Mono](https://github.com/taevel02/yeomil-mono) and reuses much of its
-implementation with minimal changes. Compared with
-[Yeomil Mono](https://github.com/taevel02/yeomil-mono), Jetendard uses
-JetBrainsMono Nerd Font Mono instead of
-[Geist Mono](https://github.com/vercel/geist-font/tree/main/fonts/GeistMono)
-and applies a `1.15` scale to
-[Pretendard](https://github.com/orioncactus/pretendard). Slightly enlarging
-Pretendard reduces unnecessary spacing around Korean glyphs, making Korean word
-spacing feel more visually stable while improving the clarity and precision of
-Hangul rendering.
+This branch builds a terminal/IDE-focused hybrid font: Geist Mono for Latin
+glyphs, Pretendard for Korean/CJK glyphs, Jetendard's fitting and metadata
+pipeline, and an optional Nerd Fonts patching step for terminal symbols.
 
-Jetendard is a reproducible font build project that combines
-[JetBrainsMono Nerd Font Mono](https://github.com/ryanoasis/nerd-fonts) with
-[Pretendard](https://github.com/orioncactus/pretendard) Korean glyphs.
+It keeps the Jetendard treatment that fits Korean/CJK glyphs into exactly two
+Latin monospace advances, but changes the default Latin source back to
+[Geist Mono](https://github.com/vercel/geist-font/tree/main/fonts/GeistMono).
+The default Korean scale is `1.10`, chosen as a smaller terminal-friendly
+middle ground than Jetendard's previous `1.15`.
 
-The generated family is named `Jetendard`. Latin glyphs, programming ligatures,
-and Nerd Font symbols come from the ligature-enabled `JetBrainsMonoNerdFontMono`
-files. Korean and CJK glyphs come from Pretendard and are fitted into exactly two
-Latin monospace advances.
+The generated family is named `Geistendard` by default. Nerd Font symbols are
+added after the TTF build with `make nerd`, because the default Geist Mono
+source is not pre-patched.
 
 **Zed Editor (font size 13.5)**
 ![screenshot](assets/screeshots/screenshot-2026-07-06-at-3.38.07-pm.png)
@@ -40,17 +33,21 @@ Latin monospace advances.
 uv sync --all-groups
 make download
 make run
+make nerd
 make test
 ```
 
-`make run` builds the full 16-variant family. 
+`make run` builds every upright Geist Mono weight supported by this builder.
+`make nerd` patches the generated TTF files into `fonts/nerd-font`; it requires
+FontForge, `curl`, and `unzip`.
 
 Generated files are written to:
 
-- `fonts/ttf/Jetendard-*.ttf`
-- `fonts/otf/Jetendard-*.otf`
-- `fonts/webfont/Jetendard-*.woff2`
-- `fonts/webfont/jetendard.css`
+- `fonts/ttf/Geistendard-*.ttf`
+- `fonts/otf/Geistendard-*.otf`
+- `fonts/webfont/Geistendard-*.woff2`
+- `fonts/webfont/geistendard.css`
+- `fonts/nerd-font/*` after `make nerd`
 
 Generated outputs and upstream downloads are intentionally ignored by git.
 
@@ -62,58 +59,55 @@ uv run jetendard --help
 
 Important options:
 
-- `--latin-dir`: directory containing `JetBrainsMonoNerdFontMono-*.ttf`
+- `--latin-source`: `geist` by default; `jetbrains-nerd` remains available for
+  the original JetBrainsMono Nerd Font Mono source profile
+- `--latin-dir`: directory containing Latin source TTF files; defaults depend on
+  `--latin-source`
 - `--cjk-dir`: directory containing `Pretendard-*.ttf`
-- `--all`: build the full 16-variant matrix
-- `--variants`: explicit output variants such as `Regular`, `Italic`, or `BoldItalic`
+- `--all`: build every variant supported by the selected Latin source profile
+- `--variants`: explicit output variants such as `Regular`, `Light`, or `Bold`
 - `--weights`: weights to build; without `--styles`, this selects upright variants
-- `--styles`: `normal`, `italic`, or both
+- `--styles`: `normal`, `italic`, or both; the default Geist source supports
+  `normal` only
 - `--korean-italic-mode`: Korean/CJK policy for italic variants, currently `upright`
 - `--korean-scale`: visual scale for Korean/CJK glyph fitting
 - `--scale`: compatibility alias for `--korean-scale`
 
-The default Korean scale is `1.15`.
+The default Korean scale is `1.10`.
 
 Examples:
 
 ```bash
 uv run jetendard --all
-uv run jetendard --weights Regular Bold --styles normal italic
 uv run jetendard --variants Regular Light Bold
+uv run jetendard --latin-source jetbrains-nerd --weights Regular Bold --styles normal italic
 ```
 
 ## Variant Coverage
 
-Jetendard builds every ligature-enabled `JetBrainsMonoNerdFontMono` Mono TTF
-variant present in the pinned Nerd Fonts archive:
+The default `geist` profile builds upright variants only:
 
-| Weight | Upright | Italic | Pretendard Korean/CJK source |
-| --- | --- | --- | --- |
-| Thin | `Jetendard-Thin` | `Jetendard-ThinItalic` | `Pretendard-Thin` |
-| ExtraLight | `Jetendard-ExtraLight` | `Jetendard-ExtraLightItalic` | `Pretendard-ExtraLight` |
-| Light | `Jetendard-Light` | `Jetendard-LightItalic` | `Pretendard-Light` |
-| Regular | `Jetendard-Regular` | `Jetendard-Italic` | `Pretendard-Regular` |
-| Medium | `Jetendard-Medium` | `Jetendard-MediumItalic` | `Pretendard-Medium` |
-| SemiBold | `Jetendard-SemiBold` | `Jetendard-SemiBoldItalic` | `Pretendard-SemiBold` |
-| Bold | `Jetendard-Bold` | `Jetendard-BoldItalic` | `Pretendard-Bold` |
-| ExtraBold | `Jetendard-ExtraBold` | `Jetendard-ExtraBoldItalic` | `Pretendard-ExtraBold` |
+| Weight | Upright | Pretendard Korean/CJK source |
+| --- | --- | --- |
+| Thin | `Geistendard-Thin` | `Pretendard-Thin` |
+| ExtraLight | `Geistendard-ExtraLight` | `Pretendard-ExtraLight` |
+| Light | `Geistendard-Light` | `Pretendard-Light` |
+| Regular | `Geistendard-Regular` | `Pretendard-Regular` |
+| Medium | `Geistendard-Medium` | `Pretendard-Medium` |
+| SemiBold | `Geistendard-SemiBold` | `Pretendard-SemiBold` |
+| Bold | `Geistendard-Bold` | `Pretendard-Bold` |
+| ExtraBold | `Geistendard-ExtraBold` | `Pretendard-ExtraBold` |
 
-Pretendard does not provide true static italic Korean/CJK fonts in the pinned
-archive, so italic Jetendard variants use italic JetBrainsMono Latin glyphs and
-upright Pretendard Korean/CJK glyphs. The generated font metadata and CSS still
-identify those variants as italic.
+The optional `jetbrains-nerd` profile keeps the original 16 upright/italic
+JetBrainsMono Nerd Font Mono matrix. Geist italic variants are intentionally not
+invented by this builder; use a Latin source profile with real italic files if
+italic terminal fonts become important.
 
 ## Scope
 
-Jetendard only uses `JetBrainsMonoNerdFontMono`. It does not use
-`JetBrainsMonoNerdFont`, `JetBrainsMonoNerdFontPropo`, or `JetBrainsMonoNL`
-no-ligature variants. Because the base font is already Nerd Font patched, this
-project does not run a second Nerd Fonts patching step.
-
-`Pretendard-Black` is not built by default because the confirmed
-`JetBrainsMonoNerdFontMono` archive does not contain a matching Black source.
-The downloader also extracts `PretendardVariable.ttf` when available for future
-custom-weight work.
+This branch targets terminal and IDE use. The default output prioritizes Geist
+Mono Latin rendering, Jetendard's Korean/CJK fitting, and Nerd Font symbols. It
+does not try to preserve every original Jetendard release workflow.
 
 ## Visual Check Samples
 

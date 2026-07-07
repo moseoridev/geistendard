@@ -11,6 +11,8 @@ from fontTools.ttLib.tables._c_m_a_p import CmapSubtable
 
 from jetendard.builder import (
     DEFAULT_VARIANTS,
+    LATIN_SOURCE_GEIST,
+    LATIN_SOURCE_JETBRAINS_NERD,
     calculate_fitted_transform,
     calculate_korean_target_width,
     collect_cjk_codepoints,
@@ -75,7 +77,7 @@ def make_style_font() -> TTFont:
     return font
 
 
-def test_default_variants_cover_full_matrix() -> None:
+def test_jetbrains_default_variants_cover_full_matrix() -> None:
     suffixes = [variant.output_suffix for variant in DEFAULT_VARIANTS]
 
     assert len(DEFAULT_VARIANTS) == 16
@@ -99,15 +101,50 @@ def test_default_variants_cover_full_matrix() -> None:
     ]
 
 
-def test_regular_italic_variant_uses_special_source_filename() -> None:
-    variant = make_font_variant("Regular", "italic")
+@pytest.mark.parametrize(
+    (
+        "weight_name",
+        "expected_suffix",
+        "expected_subfamily",
+        "expected_filename",
+        "expected_weight",
+    ),
+    [
+        ("Regular", "Italic", "Italic", "JetBrainsMonoNerdFontMono-Italic.ttf", 400),
+        ("Bold", "BoldItalic", "Bold Italic", "JetBrainsMonoNerdFontMono-BoldItalic.ttf", 700),
+    ],
+)
+def test_jetbrains_italic_variants_use_nerd_font_source_filenames(
+    weight_name: str,
+    expected_suffix: str,
+    expected_subfamily: str,
+    expected_filename: str,
+    expected_weight: int,
+) -> None:
+    variant = make_font_variant(weight_name, "italic", LATIN_SOURCE_JETBRAINS_NERD)
 
-    assert variant.output_suffix == "Italic"
-    assert variant.subfamily_name == "Italic"
-    assert variant.latin_filename == "JetBrainsMonoNerdFontMono-Italic.ttf"
-    assert variant.cjk_weight_name == "Regular"
-    assert variant.css_weight == 400
+    assert variant.output_suffix == expected_suffix
+    assert variant.subfamily_name == expected_subfamily
+    assert variant.latin_filename == expected_filename
+    assert variant.cjk_weight_name == weight_name
+    assert variant.css_weight == expected_weight
     assert variant.is_italic is True
+
+
+def test_geist_upright_variant_uses_geist_source_filename() -> None:
+    variant = make_font_variant("ExtraBold", "normal", LATIN_SOURCE_GEIST)
+
+    assert variant.output_suffix == "ExtraBold"
+    assert variant.subfamily_name == "ExtraBold"
+    assert variant.latin_filename == "GeistMono-ExtraBold.ttf"
+    assert variant.cjk_weight_name == "ExtraBold"
+    assert variant.css_weight == 800
+    assert variant.is_italic is False
+
+
+def test_geist_variant_rejects_italic_source_filename() -> None:
+    with pytest.raises(ValueError, match="does not support style 'italic'"):
+        make_font_variant("Regular", "italic", LATIN_SOURCE_GEIST)
 
 
 def test_get_variants_by_names_rejects_unknown_variant() -> None:

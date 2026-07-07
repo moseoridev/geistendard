@@ -13,17 +13,21 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from jetendard.builder import DEFAULT_VARIANTS, SUPPORTED_WEIGHTS  # noqa: E402
+from jetendard.builder import (  # noqa: E402
+    LATIN_SOURCE_GEIST,
+    SUPPORTED_WEIGHTS,
+    default_variants_for_latin_source,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-NERD_FONTS_VERSION = "v3.4.0"
+GEIST_VERSION = "1.7.2"
 PRETENDARD_VERSION = "1.3.9"
 
-JETBRAINS_MONO_URL = (
-    f"https://github.com/ryanoasis/nerd-fonts/releases/download/"
-    f"{NERD_FONTS_VERSION}/JetBrainsMono.zip"
+GEIST_MONO_URL = (
+    f"https://github.com/vercel/geist-font/releases/download/v{GEIST_VERSION}/"
+    f"geist-font-v{GEIST_VERSION}.zip"
 )
 PRETENDARD_URL = (
     "https://github.com/orioncactus/pretendard/releases/download/"
@@ -32,7 +36,7 @@ PRETENDARD_URL = (
 
 UPSTREAM_DIR = Path("upstream")
 ARCHIVE_DIR = UPSTREAM_DIR / "_archives"
-JETBRAINS_DIR = UPSTREAM_DIR / "jetbrainsmono"
+GEIST_DIR = UPSTREAM_DIR / "geistmono"
 PRETENDARD_DIR = UPSTREAM_DIR / "pretendard"
 OPTIONAL_PRETENDARD_FILES = ("PretendardVariable.ttf",)
 
@@ -122,18 +126,24 @@ def extract_expected_fonts(
 
 def write_sources_note() -> None:
     """Write a small note documenting the downloaded upstream versions."""
-    jetbrains_files = sorted({variant.latin_filename for variant in DEFAULT_VARIANTS})
+    geist_files = sorted(
+        {
+            variant.latin_filename
+            for variant in default_variants_for_latin_source(LATIN_SOURCE_GEIST)
+        }
+    )
     pretendard_files = [f"Pretendard-{weight}.ttf" for weight in SUPPORTED_WEIGHTS]
     note = "\n".join(
         [
             "# Jetendard Upstream Sources",
             "",
-            f"- Nerd Fonts JetBrainsMono: {NERD_FONTS_VERSION}",
+            f"- Geist Mono: {GEIST_VERSION}",
+            "- Nerd Fonts patcher: 3.4.0 (applied by `make nerd` when FontForge is installed)",
             f"- Pretendard: {PRETENDARD_VERSION}",
             "",
-            "## Extracted JetBrainsMono Nerd Font Mono Files",
+            "## Extracted Geist Mono Files",
             "",
-            *[f"- `{filename}`" for filename in jetbrains_files],
+            *[f"- `{filename}`" for filename in geist_files],
             "",
             "## Extracted Pretendard Files",
             "",
@@ -149,17 +159,19 @@ def write_sources_note() -> None:
 
 
 def main() -> int:
-    """Download upstream JetBrainsMono Nerd Font Mono and Pretendard files."""
-    jetbrains_archive = ARCHIVE_DIR / f"JetBrainsMono-{NERD_FONTS_VERSION}.zip"
+    """Download upstream Geist Mono and Pretendard files."""
+    geist_archive = ARCHIVE_DIR / f"GeistMono-v{GEIST_VERSION}.zip"
     pretendard_archive = ARCHIVE_DIR / f"Pretendard-{PRETENDARD_VERSION}.zip"
 
-    jetbrains_expected = {variant.latin_filename for variant in DEFAULT_VARIANTS}
+    geist_expected = {
+        variant.latin_filename for variant in default_variants_for_latin_source(LATIN_SOURCE_GEIST)
+    }
     pretendard_expected = {f"Pretendard-{weight}.ttf" for weight in SUPPORTED_WEIGHTS}
 
     try:
-        download_file(JETBRAINS_MONO_URL, jetbrains_archive)
+        download_file(GEIST_MONO_URL, geist_archive)
         download_file(PRETENDARD_URL, pretendard_archive)
-        extract_expected_fonts(jetbrains_archive, JETBRAINS_DIR, jetbrains_expected)
+        extract_expected_fonts(geist_archive, GEIST_DIR, geist_expected)
         extract_expected_fonts(
             pretendard_archive,
             PRETENDARD_DIR,

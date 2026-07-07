@@ -20,8 +20,12 @@ logger = logging.getLogger(__name__)
 
 Bounds = tuple[float, float, float, float]
 
-DEFAULT_KOREAN_SCALE = 1.15
+DEFAULT_KOREAN_SCALE = 1.10
 ASCII_WIDTH_SAMPLE = tuple(ord(char) for char in " A0Hinmw")
+LATIN_SOURCE_GEIST = "geist"
+LATIN_SOURCE_JETBRAINS_NERD = "jetbrains-nerd"
+DEFAULT_LATIN_SOURCE = LATIN_SOURCE_GEIST
+SUPPORTED_LATIN_SOURCES = (LATIN_SOURCE_GEIST, LATIN_SOURCE_JETBRAINS_NERD)
 
 
 CHOSEONG_MAP = {
@@ -128,6 +132,7 @@ WEIGHT_TO_CSS = {
 SUPPORTED_WEIGHTS = tuple(WEIGHT_TO_CSS)
 DEFAULT_WEIGHTS = SUPPORTED_WEIGHTS
 SUPPORTED_STYLES = ("normal", "italic")
+GEIST_SUPPORTED_STYLES = ("normal",)
 
 
 def new_ot_table(class_name: str) -> Any:
@@ -136,8 +141,46 @@ def new_ot_table(class_name: str) -> Any:
     return table_class()
 
 
-def make_font_variant(weight_name: str, style: str) -> FontVariant:
-    """Create a build variant for a supported weight/style pair."""
+def validate_latin_source(latin_source: str) -> str:
+    """Validate and normalize a Latin source profile name."""
+    if latin_source not in SUPPORTED_LATIN_SOURCES:
+        supported = ", ".join(SUPPORTED_LATIN_SOURCES)
+        msg = f"Unsupported Latin source {latin_source!r}. Supported: {supported}"
+        raise ValueError(msg)
+    return latin_source
+
+
+def supported_styles_for_latin_source(latin_source: str) -> tuple[str, ...]:
+    """Return styles available for a Latin source profile."""
+    latin_source = validate_latin_source(latin_source)
+    if latin_source == LATIN_SOURCE_GEIST:
+        return GEIST_SUPPORTED_STYLES
+    return SUPPORTED_STYLES
+
+
+def latin_filename_for(weight_name: str, style: str, latin_source: str) -> str:
+    """Return the expected Latin source filename for a build variant."""
+    latin_source = validate_latin_source(latin_source)
+    is_italic = style == "italic"
+    if latin_source == LATIN_SOURCE_GEIST:
+        if is_italic:
+            msg = "Geist Mono source supports upright variants only in this builder"
+            raise ValueError(msg)
+        return f"GeistMono-{weight_name}.ttf"
+
+    if is_italic:
+        latin_suffix = "Italic" if weight_name == "Regular" else f"{weight_name}Italic"
+    else:
+        latin_suffix = weight_name
+    return f"JetBrainsMonoNerdFontMono-{latin_suffix}.ttf"
+
+
+def make_font_variant(
+    weight_name: str,
+    style: str,
+    latin_source: str = LATIN_SOURCE_JETBRAINS_NERD,
+) -> FontVariant:
+    """Create a build variant for a supported weight/style/source combination."""
     if weight_name not in WEIGHT_TO_CSS:
         supported = ", ".join(SUPPORTED_WEIGHTS)
         msg = f"Unsupported weight {weight_name!r}. Supported: {supported}"
@@ -146,14 +189,17 @@ def make_font_variant(weight_name: str, style: str) -> FontVariant:
         supported = ", ".join(SUPPORTED_STYLES)
         msg = f"Unsupported style {style!r}. Supported: {supported}"
         raise ValueError(msg)
+    supported_styles = supported_styles_for_latin_source(latin_source)
+    if style not in supported_styles:
+        supported = ", ".join(supported_styles)
+        msg = f"{latin_source} does not support style {style!r}. Supported: {supported}"
+        raise ValueError(msg)
 
     is_italic = style == "italic"
     if is_italic:
-        latin_suffix = "Italic" if weight_name == "Regular" else f"{weight_name}Italic"
-        output_suffix = latin_suffix
+        output_suffix = "Italic" if weight_name == "Regular" else f"{weight_name}Italic"
         subfamily_name = "Italic" if weight_name == "Regular" else f"{weight_name} Italic"
     else:
-        latin_suffix = weight_name
         output_suffix = weight_name
         subfamily_name = weight_name
 
@@ -161,7 +207,7 @@ def make_font_variant(weight_name: str, style: str) -> FontVariant:
         weight_name=weight_name,
         css_weight=WEIGHT_TO_CSS[weight_name],
         style=style,
-        latin_filename=f"JetBrainsMonoNerdFontMono-{latin_suffix}.ttf",
+        latin_filename=latin_filename_for(weight_name, style, latin_source),
         cjk_weight_name=weight_name,
         output_suffix=output_suffix,
         subfamily_name=subfamily_name,
@@ -170,22 +216,34 @@ def make_font_variant(weight_name: str, style: str) -> FontVariant:
     )
 
 
-DEFAULT_VARIANTS = tuple(
-    make_font_variant(weight_name, style)
-    for weight_name in SUPPORTED_WEIGHTS
-    for style in SUPPORTED_STYLES
-)
+def default_variants_for_latin_source(latin_source: str) -> tuple[FontVariant, ...]:
+    """Return all default variants supported by a Latin source profile."""
+    return tuple(
+        make_font_variant(weight_name, style, latin_source)
+        for weight_name in SUPPORTED_WEIGHTS
+        for style in supported_styles_for_latin_source(latin_source)
+    )
+
+
+DEFAULT_VARIANTS = default_variants_for_latin_source(LATIN_SOURCE_JETBRAINS_NERD)
 VARIANTS_BY_SUFFIX = {variant.output_suffix: variant for variant in DEFAULT_VARIANTS}
 
 
-def get_variants_by_names(variant_names: list[str] | tuple[str, ...]) -> list[FontVariant]:
+def get_variants_by_names(
+    variant_names: list[str] | tuple[str, ...],
+    latin_source: str = LATIN_SOURCE_JETBRAINS_NERD,
+) -> list[FontVariant]:
     """Resolve output suffix names to variants, preserving request order."""
+    variants_by_suffix = {
+        variant.output_suffix: variant
+        for variant in default_variants_for_latin_source(latin_source)
+    }
     variants: list[FontVariant] = []
     seen: set[str] = set()
     unsupported: list[str] = []
 
     for name in variant_names:
-        variant = VARIANTS_BY_SUFFIX.get(name)
+        variant = variants_by_suffix.get(name)
         if variant is None:
             unsupported.append(name)
             continue
@@ -195,7 +253,7 @@ def get_variants_by_names(variant_names: list[str] | tuple[str, ...]) -> list[Fo
         seen.add(variant.output_suffix)
 
     if unsupported:
-        supported = ", ".join(VARIANTS_BY_SUFFIX)
+        supported = ", ".join(variants_by_suffix)
         msg = f"Unsupported variant(s): {', '.join(unsupported)}. Supported: {supported}"
         raise ValueError(msg)
 
@@ -205,9 +263,12 @@ def get_variants_by_names(variant_names: list[str] | tuple[str, ...]) -> list[Fo
 def get_variants_by_weights_and_styles(
     weights: list[str] | tuple[str, ...],
     styles: list[str] | tuple[str, ...],
+    latin_source: str = LATIN_SOURCE_JETBRAINS_NERD,
 ) -> list[FontVariant]:
     """Resolve weight/style selectors to variants."""
-    return [make_font_variant(weight, style) for weight in weights for style in styles]
+    return [
+        make_font_variant(weight, style, latin_source) for weight in weights for style in styles
+    ]
 
 
 def is_cjk(code: int) -> bool:
