@@ -1,4 +1,4 @@
-"""Download and extract upstream font files for Jetendard."""
+"""Download and extract upstream font files for Geistendard."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from jetendard.builder import (  # noqa: E402
+from geistendard.builder import (  # noqa: E402
     LATIN_SOURCE_GEIST,
     SUPPORTED_WEIGHTS,
     default_variants_for_latin_source,
@@ -50,7 +50,7 @@ def download_file(url: str, output_path: Path) -> None:
 
     tmp_path = output_path.with_suffix(output_path.suffix + ".tmp")
     logger.info("Downloading %s", url)
-    request = urllib.request.Request(url, headers={"User-Agent": "Jetendard builder"})
+    request = urllib.request.Request(url, headers={"User-Agent": "Geistendard builder"})
     try:
         with (
             urllib.request.urlopen(request, timeout=120) as response,
@@ -70,7 +70,7 @@ def download_file(url: str, output_path: Path) -> None:
                 "--connect-timeout",
                 "30",
                 "-A",
-                "Jetendard builder",
+                "Geistendard builder",
                 "-o",
                 str(tmp_path),
                 url,
@@ -135,7 +135,7 @@ def write_sources_note() -> None:
     pretendard_files = [f"Pretendard-{weight}.ttf" for weight in SUPPORTED_WEIGHTS]
     note = "\n".join(
         [
-            "# Jetendard Upstream Sources",
+            "# Geistendard Upstream Sources",
             "",
             f"- Geist Mono: {GEIST_VERSION}",
             "- Nerd Fonts patcher: 3.4.0 (applied by `make nerd` when FontForge is installed)",

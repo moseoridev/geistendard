@@ -1,4 +1,4 @@
-"""Unit tests for Jetendard builder logic."""
+"""Unit tests for Geistendard builder logic."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import pytest
 from fontTools.ttLib import TTFont, newTable
 from fontTools.ttLib.tables._c_m_a_p import CmapSubtable
 
-from jetendard.builder import (
+from geistendard.builder import (
     DEFAULT_VARIANTS,
     LATIN_SOURCE_GEIST,
     LATIN_SOURCE_JETBRAINS_NERD,
@@ -230,25 +230,25 @@ def test_fitted_transform_caps_unsafe_scale() -> None:
 
 def test_update_font_names_sets_required_records() -> None:
     font = make_name_font()
-    update_font_names(font, "Jetendard", "Regular")
+    update_font_names(font, "Geistendard", "Regular")
 
     name_table = font["name"]
-    assert name_table.getName(1, 3, 1, 0x409).toUnicode() == "Jetendard"
+    assert name_table.getName(1, 3, 1, 0x409).toUnicode() == "Geistendard"
     assert name_table.getName(2, 3, 1, 0x409).toUnicode() == "Regular"
-    assert name_table.getName(4, 3, 1, 0x409).toUnicode() == "Jetendard Regular"
-    assert name_table.getName(6, 3, 1, 0x409).toUnicode() == "Jetendard-Regular"
-    assert name_table.getName(16, 3, 1, 0x409).toUnicode() == "Jetendard"
+    assert name_table.getName(4, 3, 1, 0x409).toUnicode() == "Geistendard Regular"
+    assert name_table.getName(6, 3, 1, 0x409).toUnicode() == "Geistendard-Regular"
+    assert name_table.getName(16, 3, 1, 0x409).toUnicode() == "Geistendard"
     assert name_table.getName(17, 3, 1, 0x409).toUnicode() == "Regular"
 
 
 def test_update_font_names_supports_italic_postscript_names() -> None:
     font = make_name_font()
-    update_font_names(font, "Jetendard", "Bold Italic")
+    update_font_names(font, "Geistendard", "Bold Italic")
 
     name_table = font["name"]
     assert name_table.getName(2, 3, 1, 0x409).toUnicode() == "Bold Italic"
-    assert name_table.getName(4, 3, 1, 0x409).toUnicode() == "Jetendard Bold Italic"
-    assert name_table.getName(6, 3, 1, 0x409).toUnicode() == "Jetendard-BoldItalic"
+    assert name_table.getName(4, 3, 1, 0x409).toUnicode() == "Geistendard Bold Italic"
+    assert name_table.getName(6, 3, 1, 0x409).toUnicode() == "Geistendard-BoldItalic"
     assert name_table.getName(17, 3, 1, 0x409).toUnicode() == "Bold Italic"
 
 
@@ -297,12 +297,12 @@ def test_integration_merge_skips_without_upstream_fonts(tmp_path: Path) -> None:
     if not latin_path.exists() or not cjk_path.exists():
         pytest.skip("upstream fonts have not been downloaded")
 
-    output_path = tmp_path / "Jetendard-Regular.ttf"
+    output_path = tmp_path / "Geistendard-Regular.ttf"
     stats = merge_fonts(
         latin_path=latin_path,
         cjk_path=cjk_path,
         output_path=output_path,
-        family_name="Jetendard",
+        family_name="Geistendard",
         subfamily_name="Regular",
     )
 
@@ -311,7 +311,7 @@ def test_integration_merge_skips_without_upstream_fonts(tmp_path: Path) -> None:
     features = [record.FeatureTag for record in font["GSUB"].table.FeatureList.FeatureRecord]
     assert stats.copied_count > 10_000
     assert font["hmtx"].metrics[cmap[ord("가")]][0] == font["hmtx"].metrics[cmap[ord("A")]][0] * 2
-    assert font["name"].getName(1, 3, 1, 0x409).toUnicode() == "Jetendard"
+    assert font["name"].getName(1, 3, 1, 0x409).toUnicode() == "Geistendard"
     assert font["post"].isFixedPitch == 1
     assert "calt" in features
     assert "ccmp" in features
@@ -325,12 +325,12 @@ def test_integration_merge_italic_metadata_skips_without_upstream_fonts(tmp_path
     if not latin_path.exists() or not cjk_path.exists():
         pytest.skip("upstream italic fonts have not been downloaded")
 
-    output_path = tmp_path / "Jetendard-Italic.ttf"
+    output_path = tmp_path / "Geistendard-Italic.ttf"
     stats = merge_fonts(
         latin_path=latin_path,
         cjk_path=cjk_path,
         output_path=output_path,
-        family_name="Jetendard",
+        family_name="Geistendard",
         subfamily_name=variant.subfamily_name,
         typographic_subfamily_name=variant.typographic_subfamily_name,
         is_italic=variant.is_italic,
@@ -343,7 +343,7 @@ def test_integration_merge_italic_metadata_skips_without_upstream_fonts(tmp_path
     assert stats.copied_count > 10_000
     assert font["hmtx"].metrics[cmap[ord("가")]][0] == font["hmtx"].metrics[cmap[ord("A")]][0] * 2
     assert font["name"].getName(2, 3, 1, 0x409).toUnicode() == "Italic"
-    assert font["name"].getName(6, 3, 1, 0x409).toUnicode() == "Jetendard-Italic"
+    assert font["name"].getName(6, 3, 1, 0x409).toUnicode() == "Geistendard-Italic"
     assert font["head"].macStyle & (1 << 1)
     assert font["OS/2"].fsSelection & (1 << 0)
     assert "calt" in features
@@ -370,12 +370,12 @@ def test_full_matrix_integration_when_enabled(tmp_path: Path) -> None:
     for variant in DEFAULT_VARIANTS:
         latin_path = Path("upstream/jetbrainsmono") / variant.latin_filename
         cjk_path = Path("upstream/pretendard") / f"Pretendard-{variant.cjk_weight_name}.ttf"
-        output_path = tmp_path / f"Jetendard-{variant.output_suffix}.ttf"
+        output_path = tmp_path / f"Geistendard-{variant.output_suffix}.ttf"
         merge_fonts(
             latin_path=latin_path,
             cjk_path=cjk_path,
             output_path=output_path,
-            family_name="Jetendard",
+            family_name="Geistendard",
             subfamily_name=variant.subfamily_name,
             typographic_subfamily_name=variant.typographic_subfamily_name,
             is_italic=variant.is_italic,

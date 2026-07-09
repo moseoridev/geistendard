@@ -26,13 +26,13 @@ ensure-upstream:
 	fi
 
 run: ensure-upstream
-	uv run jetendard --all
+	uv run geistendard --all
 
 run-all: ensure-upstream
-	uv run jetendard --all
+	uv run geistendard --all
 
 run-minimal: ensure-upstream
-	uv run jetendard --variants Regular Light Bold
+	uv run geistendard --variants Regular Light Bold
 
 run-nerd: run nerd
 

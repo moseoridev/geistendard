@@ -1,4 +1,4 @@
-"""Command-line interface for Jetendard."""
+"""Command-line interface for Geistendard."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from pathlib import Path
 
 from fontTools.ttLib import TTFont
 
-from jetendard.builder import (
+from geistendard.builder import (
     DEFAULT_KOREAN_SCALE,
     DEFAULT_LATIN_SOURCE,
     DEFAULT_WEIGHTS,
@@ -59,7 +59,7 @@ def write_css(output_web_dir: Path, family_name: str, variants: list[FontVariant
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build the Jetendard CLI parser."""
+    """Build the Geistendard CLI parser."""
     parser = argparse.ArgumentParser(
         description=(
             "Build a Geist Mono or JetBrainsMono Nerd Font Mono Latin base "
@@ -211,7 +211,7 @@ def select_variants(
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Run the Jetendard build."""
+    """Run the Geistendard build."""
     parser = build_parser()
     args = parser.parse_args(argv)
 
@@ -241,7 +241,7 @@ def main(argv: list[str] | None = None) -> int:
 
     stem = family_file_stem(args.family_name)
     logger.info(
-        "Starting Jetendard build with %s Latin source for variants: %s",
+        "Starting Geistendard build with %s Latin source for variants: %s",
         args.latin_source,
         ", ".join(variant.output_suffix for variant in variants),
     )
@@ -299,7 +299,7 @@ def main(argv: list[str] | None = None) -> int:
             return 1
 
     write_css(web_dir, args.family_name, variants)
-    logger.info("All requested Jetendard variants built successfully")
+    logger.info("All requested Geistendard variants built successfully")
     return 0
 
 

@@ -1,10 +1,10 @@
 [project]
-name = "jetendard"
+name = "geistendard"
 version = "0.1.0"
-description = "Build Jetendard, a JetBrainsMono Nerd Font Mono and Pretendard Korean monospace font."
+description = "Build Geistendard, a JetBrainsMono Nerd Font Mono and Pretendard Korean monospace font."
 readme = "README.md"
 authors = [
-    { name = "Jung Woong Park" }
+    { name = "moseoridev" }
 ]
 requires-python = ">=3.12"
 dependencies = [
@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-jetendard = "jetendard:main"
+geistendard = "geistendard:main"
 
 [build-system]
 requires = ["uv_build>=0.11.19,<0.12.0"]

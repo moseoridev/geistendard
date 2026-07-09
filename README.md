@@ -5,15 +5,12 @@
 > Korean/CJK fitting pipeline while changing the default Latin source to Geist
 > Mono and adding this repository's build/release choices.
 
-This branch builds a terminal/IDE-focused hybrid font: Geist Mono for Latin
-glyphs, Pretendard for Korean/CJK glyphs, Jetendard's fitting and metadata
-pipeline, and an optional Nerd Fonts patching step for terminal symbols.
+Geistendard builds a terminal/IDE-focused hybrid font: Geist Mono for Latin
+glyphs, Pretendard for Korean/CJK glyphs, Geistendard fitting and metadata, and
+an optional Nerd Fonts patching step for terminal symbols.
 
-It keeps the Jetendard treatment that fits Korean/CJK glyphs into exactly two
-Latin monospace advances, but changes the default Latin source back to
-[Geist Mono](https://github.com/vercel/geist-font/tree/main/fonts/GeistMono).
-The default Korean scale is `1.10`, chosen as a smaller terminal-friendly
-middle ground than Jetendard's previous `1.15`.
+Korean/CJK glyphs fit into exactly two Latin monospace advances. The default
+Korean scale is `1.10`, chosen as a compact terminal-friendly middle ground.
 
 The generated family is named `Geistendard` by default. Nerd Font symbols are
 added after the TTF build with `make nerd`, because the default Geist Mono
@@ -24,8 +21,7 @@ source is not pre-patched.
 Installable builds are published on
 [GitHub Releases](https://github.com/moseoridev/geistendard/releases).
 Screenshots are intentionally omitted until Geistendard-specific captures are
-available; old Jetendard-era screenshots were removed to avoid misrepresenting
-this fork.
+available.
 
 ## Build
 
@@ -54,7 +50,7 @@ Generated outputs and upstream downloads are intentionally ignored by git.
 ## CLI
 
 ```bash
-uv run jetendard --help
+uv run geistendard --help
 ```
 
 Important options:
@@ -78,9 +74,9 @@ The default Korean scale is `1.10`.
 Examples:
 
 ```bash
-uv run jetendard --all
-uv run jetendard --variants Regular Light Bold
-uv run jetendard --latin-source jetbrains-nerd --weights Regular Bold --styles normal italic
+uv run geistendard --all
+uv run geistendard --variants Regular Light Bold
+uv run geistendard --latin-source jetbrains-nerd --weights Regular Bold --styles normal italic
 ```
 
 ## Variant Coverage
@@ -105,17 +101,16 @@ italic terminal fonts become important.
 
 ## Scope
 
-This branch targets terminal and IDE use. The default output prioritizes Geist
-Mono Latin rendering, Jetendard's Korean/CJK fitting, and Nerd Font symbols. It
-does not try to preserve every original Jetendard release workflow.
+Geistendard targets terminal and IDE use. The default output prioritizes Geist
+Mono Latin rendering, Korean/CJK fitting, and Nerd Font symbols.
 
 ## Visual Check Samples
 
-Use the same renderer, point size, and line height when comparing Jetendard
-against yeomil-mono or another monospace baseline:
+Use the same renderer, point size, and line height when comparing Geistendard
+against another monospace baseline:
 
 ```text
-Jetendard 테스트 ABC abc 0123456789
+Geistendard 테스트 ABC abc 0123456789
 가각간갇갈감갑값같꿇뷁힣
 한글과 English가 섞인 source comment
 if (상태 === "완료") return "성공";
@@ -133,6 +128,6 @@ outlines as the generated TTFs.
 
 ## License
 
-Jetendard is distributed under the [SIL Open Font License 1.1](LICENSE). Review
-the upstream JetBrains Mono, Nerd Fonts, Pretendard, and Yeomil Mono projects for
-their full copyright and reserved-name notices.
+Geistendard is distributed under the [SIL Open Font License 1.1](LICENSE).
+Review the upstream Geist Mono, Nerd Fonts, Pretendard, and Jetendard projects
+for their full copyright and reserved-name notices.

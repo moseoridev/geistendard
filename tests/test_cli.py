@@ -1,11 +1,11 @@
-"""Tests for the Jetendard CLI helpers."""
+"""Tests for the Geistendard CLI helpers."""
 
 from __future__ import annotations
 
 import pytest
 
-from jetendard.builder import DEFAULT_VARIANTS, get_variants_by_names
-from jetendard.cli import (
+from geistendard.builder import DEFAULT_VARIANTS, get_variants_by_names
+from geistendard.cli import (
     build_parser,
     family_file_stem,
     select_variants,
@@ -16,7 +16,7 @@ from jetendard.cli import (
 
 
 def test_family_file_stem_removes_spaces() -> None:
-    assert family_file_stem("Jetendard Mono") == "JetendardMono"
+    assert family_file_stem("Geistendard Mono") == "GeistendardMono"
 
 
 def test_validate_weights_accepts_supported_weights() -> None:
@@ -116,15 +116,15 @@ def test_parser_defaults_to_geist_profile_family_and_scale() -> None:
 
 def test_write_css_generates_font_face_rules(tmp_path) -> None:
     variants = get_variants_by_names(["Regular", "Italic", "BoldItalic"])
-    css_path = write_css(tmp_path, "Jetendard", variants)
+    css_path = write_css(tmp_path, "Geistendard", variants)
     content = css_path.read_text(encoding="utf-8")
 
-    assert css_path.name == "jetendard.css"
-    assert "font-family: 'Jetendard';" in content
-    assert "Jetendard-Regular.woff2" in content
+    assert css_path.name == "geistendard.css"
+    assert "font-family: 'Geistendard';" in content
+    assert "Geistendard-Regular.woff2" in content
     assert "font-weight: 400;" in content
     assert "font-style: normal;" in content
-    assert "Jetendard-Italic.woff2" in content
+    assert "Geistendard-Italic.woff2" in content
     assert "font-style: italic;" in content
-    assert "Jetendard-BoldItalic.woff2" in content
+    assert "Geistendard-BoldItalic.woff2" in content
     assert "font-weight: 700;" in content
